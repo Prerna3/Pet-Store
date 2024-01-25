@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %} PetCart | Index {% endblock%}
+{% block body %}
+<div class="col-md-3 mt-3">
+    <h5>Filter by Category</h5>
+    <hr>
+    <a href="/">All</a><br>
+    <a href="/catlist">Cats</a><br>
+    <a href="/doglist">Dogs</a><br>
+    <a href="/birdlist">Birds</a><br>
+    <a href="/fishlist">Fish</a>
+    <br><br><br>
+    <h5>Filter by Price</h5>
+    <hr>
+    <form method="POST" action="{% url 'range' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="Input1" class="form-label">Minimum</label>
+            <input type="text" class="form-control" name="min" id="Input1">
+        </div>
+        <div class="mb-3">
+            <label for="exampleInput2" class="form-label">Maximum</label>
+            <input type="text" class="form-control" name="max" id="exampleInput2">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <br><br>
+    <h5>Sort by Price</h5>
+    <hr>
+    <a href="/descpriceOrder">High to Low</a><br>
+    <a href="/priceOrder">Low to High</a>
+</div>
+<div class="col-md-9 mt-3 bg-body-secondary">
+    <div class="row">
+        {% for x in pet %}
+        <div class="col-md-4 mb-3">
+            <div class="card" style="width: 100%;">
+                <img src="{{x.image.url}}" class="card-img-top" alt="image" style="width: 100%; height: 250px;">
+                <div class="card-body">
+                    <h5 class="card-title">{{x.pet_name}}</h5>
+                    <p class="card-text"><b>Price:</b> {{x.price}}</p>
+                    <a href="/petDetails/{{x.pet_id}}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

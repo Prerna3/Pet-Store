@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title%} Search Book {% endblock%}
+{% block body %}
+<h1>Search result for {{query}}</h1>
+
+<table border="1" cellpadding="10px" class="table-bordered">
+    <tr class="bg-danger text-white" style=" text-align: center;">
+        <th>Sr.No.</th>
+        <th>Pet Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Image</th>
+    </tr>
+    {% for x in results %}
+    <tr>
+        <td>{{forloop.counter}}</td>
+        <td>{{x.pet_name}}</td>
+        <td>{{x.desc}}</td>
+        <td>{{x.price}}</td>
+        <td><img src="{{x.image.url}}" width="100%" height="150px"></td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
