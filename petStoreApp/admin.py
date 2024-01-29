@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Pet, CartItem
+from .models import Pet, CartItem, Order
 
 
 # Register your models here.
@@ -15,3 +15,10 @@ class CartAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CartItem, CartAdmin)
+
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ["order_id", "pet_id", "quantity", "user", "is_completed"]
+
+
+admin.site.register(Order, OrderAdmin)

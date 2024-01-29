@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from .models import Pet, CartItem, Order
 from django.contrib.auth import login, logout, authenticate
-from .forms import CreateUserForm
+from .forms import CreateUserForm, AddPet
 from django.contrib import messages
 import random
+import razorpay
+from django.contrib.auth.decorators import user_passes_test
 
 
 # Create your views here.
@@ -31,9 +33,7 @@ def viewCart(req):
     context["items"] = cart_item
     total_price = 0
     for x in cart_item:
-        print(x.pet.price, x.quantity)
         total_price += x.pet.price * x.quantity
-        print(total_price)
     context["total"] = total_price
     length = len(cart_item)
     context["length"] = length
@@ -163,12 +163,12 @@ def viewOrder(req):
     for x in cart_item:
         Order.objects.create(
             order_id=oid,
-            product_id=x.pet.pet_id,
+            pet_id=x.pet.pet_id,
             quantity=x.quantity,
             user=req.user,
         )
-        x.delete()
-    orders = Order.objects.filter(user=req.user)
+        # x.delete()
+    orders = Order.objects.filter(user=req.user, is_completed=False)
     context = {}
     context["items"] = orders
     total_price = 0
@@ -216,3 +216,52 @@ def logout_user(req):
     logout(req)
     messages.success(req, ("Logged out Successfully"))
     return redirect("/")
+
+
+def makePayment(req):
+    orders = Order.objects.filter(user=req.user, is_completed=False)
+    total_price = 0
+    for x in orders:
+        total_price += x.pet.price * x.quantity
+        oid = x.order_id
+    client = razorpay.Client(
+        auth=("rzp_test_sUTZ37PTI6oDaZ", "81iQLqkJ2a10ceOpuTfHHSG2")
+    )
+    data = {"amount": total_price * 100, "currency": "INR", "receipt": oid}
+    payment = client.order.create(data=data)
+    context = {}
+    context["data"] = payment
+    context["amount"] = payment["amount"]
+    c = CartItem.objects.filter(user=req.user)
+    c.delete()
+    orders.update(is_completed=True)
+    return render(req, "payment.html", context)
+
+
+def myOrder(req):
+    orders = Order.objects.filter(user=req.user, is_completed=True)
+    context = {}
+    context["items"] = orders
+    return render(req, "my_order.html", context)
+
+
+def is_admin(user):
+    return user.is_superuser
+
+
+@user_passes_test(is_admin)
+def insertProduct(req):
+    if req.user.is_authenticated:
+        user = req.user
+        if req.method == "GET":
+            form = AddPet()
+            return render(req, "insertPet.html", {"form": form, "username": user})
+        else:
+            form = AddPet(req.POST, req.FILES or None)
+            if form.is_valid():
+                form.save()
+                return redirect("/")
+            else:
+                return render(req, "insertPet.html", {"form": form, "username": user})
+    else:
+        return redirect("/login")

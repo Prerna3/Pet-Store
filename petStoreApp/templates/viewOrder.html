@@ -37,7 +37,7 @@ Ekart | Cart
         <p><b>Total items({{length}}): </b>&nbsp;&nbsp;{{total}}</p>
         <hr>
         <p><b>Total Price: </b>&nbsp;&nbsp;{{total}}</p>
-        <a href=""><button type="submit" class="btn btn-danger">Make Payment</button></a>
+        <a href="{% url 'payment' %}"><button type="submit" class="btn btn-danger">Make Payment</button></a>
     </div>
 </div>
 {% endblock %}

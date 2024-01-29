@@ -50,3 +50,4 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     date_added = models.DateTimeField(auto_now_add=True)
+    is_completed = models.BooleanField(default="False")
